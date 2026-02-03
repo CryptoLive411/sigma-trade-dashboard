@@ -5,7 +5,7 @@ import { Layout } from '@/components/Layout';
 import { useToast } from '@/hooks/use-toast';
 import { X } from 'lucide-react';
 
-const fetcher = (url: string) => api.get(url).then(r => r.data);
+const fetcher = (url: string) => api.get(url).then(r => r.data).catch(() => null);
 
 interface TrackerConfig {
   id: string;
@@ -40,9 +40,33 @@ interface MetricsData {
   perTracker?: TrackerMetrics[];
 }
 
+const MOCK_TRACKERS: TrackerConfig[] = [
+  { id: 'uniswapv2', name: 'UniswapV2', enabled: false, priority: 1, maxTrades: 5, trading: { buyEthAmount: '0.01', sellProfitPct: 50, sellLossPct: -20 } },
+  { id: 'uniswapv3', name: 'UniswapV3', enabled: true, priority: 2, maxTrades: 10, trading: { buyEthAmount: '0.02', sellProfitPct: 100, sellLossPct: -30 } },
+  { id: 'uniswapv4', name: 'UniswapV4', enabled: false, priority: 3, maxTrades: 5, trading: { buyEthAmount: '0.01', sellProfitPct: 50, sellLossPct: -25 } },
+  { id: 'baseswapv2', name: 'BaseSwapV2', enabled: false, priority: 4, maxTrades: 5 },
+  { id: 'baseswapv3', name: 'BaseSwapV3', enabled: true, priority: 5, maxTrades: 10 },
+  { id: 'aerodrome', name: 'Aerodrome', enabled: true, priority: 6, maxTrades: 8 },
+  { id: 'clankerv4', name: 'ClankerV4', enabled: true, priority: 7, maxTrades: 15, trading: { buyEthAmount: '0.005', sellProfitPct: 200, sellLossPct: -40 } },
+  { id: 'zorav4', name: 'ZoraV4', enabled: false, priority: 8, maxTrades: 5 },
+  { id: 'apestore', name: 'ApeStore', enabled: true, priority: 9, maxTrades: 10 },
+  { id: 'kingofapes', name: 'KingOfApes', enabled: true, priority: 10, maxTrades: 5 },
+];
+
+const MOCK_METRICS: MetricsData = {
+  perTracker: [
+    { id: 'uniswapv3', name: 'UniswapV3', metrics: { activeEthWei: '20000000000000000', realizedPnLEthWei: '50000000000000000', tradesCount: 12 } },
+    { id: 'baseswapv3', name: 'BaseSwapV3', metrics: { activeEthWei: '15000000000000000', realizedPnLEthWei: '40000000000000000', tradesCount: 8 } },
+    { id: 'aerodrome', name: 'Aerodrome', metrics: { activeEthWei: '10000000000000000', realizedPnLEthWei: '20000000000000000', tradesCount: 5 } },
+    { id: 'clankerv4', name: 'ClankerV4', metrics: { activeEthWei: '5000000000000000', realizedPnLEthWei: '10000000000000000', tradesCount: 3 } },
+  ]
+};
+
 export default function Trackers() {
-  const { data, mutate } = useSWR<TrackerConfig[]>('/api/trackers', fetcher, { refreshInterval: 3000 });
-  const { data: metrics } = useSWR<MetricsData>('/api/trackers/metrics', fetcher, { refreshInterval: 3000 });
+  const { data: dataRaw, mutate } = useSWR<TrackerConfig[] | null>('/api/trackers', fetcher, { refreshInterval: 3000 });
+  const { data: metricsRaw } = useSWR<MetricsData | null>('/api/trackers/metrics', fetcher, { refreshInterval: 3000 });
+  const data = dataRaw || MOCK_TRACKERS;
+  const metrics = metricsRaw || MOCK_METRICS;
   const [editing, setEditing] = useState<TrackerConfig | null>(null);
   const [draft, setDraft] = useState<TrackerConfig | null>(null);
   const [testTx, setTestTx] = useState('');

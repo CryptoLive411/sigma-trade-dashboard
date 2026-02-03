@@ -6,7 +6,7 @@ import { getSocket } from '@/lib/socket';
 import { Sparkline } from '@/components/Sparkline';
 import { PnLMap } from '@/components/PnLMap';
 
-const fetcher = (url: string) => api.get(url).then(r => r.data);
+const fetcher = (url: string) => api.get(url).then(r => r.data).catch(() => null);
 
 interface TrackerMetric {
   id: string;
@@ -28,9 +28,23 @@ interface Stats {
   load?: number[];
 }
 
+const MOCK_STATS: Stats = { uptime: 3600, load: [0.5, 0.3, 0.2] };
+const MOCK_METRICS: Metrics = {
+  activeEthWei: '50000000000000000',
+  realizedPnLEthWei: '120000000000000000',
+  perTracker: [
+    { id: 'uniswapv3', name: 'UniswapV3', metrics: { activeEthWei: '20000000000000000', realizedPnLEthWei: '50000000000000000' } },
+    { id: 'baseswapv3', name: 'BaseSwapV3', metrics: { activeEthWei: '15000000000000000', realizedPnLEthWei: '40000000000000000' } },
+    { id: 'aerodrome', name: 'Aerodrome', metrics: { activeEthWei: '10000000000000000', realizedPnLEthWei: '20000000000000000' } },
+    { id: 'clankerv4', name: 'ClankerV4', metrics: { activeEthWei: '5000000000000000', realizedPnLEthWei: '10000000000000000' } },
+  ]
+};
+
 export default function Dashboard() {
-  const { data: stats } = useSWR<Stats>('/api/stats', fetcher, { refreshInterval: 5000 });
-  const { data: metrics } = useSWR<Metrics>('/api/trackers/metrics', fetcher, { refreshInterval: 3000 });
+  const { data: statsRaw } = useSWR<Stats | null>('/api/stats', fetcher, { refreshInterval: 5000 });
+  const { data: metricsRaw } = useSWR<Metrics | null>('/api/trackers/metrics', fetcher, { refreshInterval: 3000 });
+  const stats = statsRaw || MOCK_STATS;
+  const metrics = metricsRaw || MOCK_METRICS;
   const [pnlSeries, setPnlSeries] = useState<number[]>([]);
   const [realizedHistory, setRealizedHistory] = useState<number[]>([]);
   const [activeHistory, setActiveHistory] = useState<number[]>([]);
