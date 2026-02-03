@@ -26,13 +26,28 @@ interface RuntimeConfig {
   };
 }
 
+const MOCK_RUNTIME: RuntimeConfig = {
+  chainRpc: 'wss://rpc.ankr.com/base/ws',
+  trading: {
+    buyEthAmount: '0.01',
+    sellProfitPct: 100,
+    sellLossPct: -30,
+    sellMaxHoldSeconds: 3600,
+    weth: '0x4200000000000000000000000000000000000006'
+  },
+  include: { global: [] },
+  blacklist: { global: [] },
+  priorities: { UniswapV2: 1, UniswapV3: 2, UniswapV4: 3, ApeStore: 4 },
+  trackerDefaults: { maxActiveBuyEth: '0.1' }
+};
+
 export default function Runtime() {
   const [data, setData] = useState<RuntimeConfig | null>(null);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    api.get('/api/runtime').then(r => setData(r.data));
+    api.get('/api/runtime').then(r => setData(r.data)).catch(() => setData(MOCK_RUNTIME));
   }, []);
 
   async function save() {

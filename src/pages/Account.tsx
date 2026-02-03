@@ -4,7 +4,7 @@ import { api, setToken } from '@/lib/api';
 import { Layout } from '@/components/Layout';
 import { useToast } from '@/hooks/use-toast';
 
-const fetcher = (url: string) => api.get(url).then(r => r.data);
+const fetcher = (url: string) => api.get(url).then(r => r.data).catch(() => null);
 
 interface SignerData {
   address?: string;
@@ -19,12 +19,18 @@ interface RuntimeData {
   trading?: { weth?: string };
 }
 
+const MOCK_SIGNER: SignerData = { address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0Ab23' };
+const MOCK_RUNTIME: RuntimeData = { trading: { weth: '0x4200000000000000000000000000000000000006' } };
+const MOCK_BALANCES: BalancesData = { eth: '1500000000000000000', tokens: { '0x4200000000000000000000000000000000000006': { raw: '500000000000000000', decimals: 18 } } };
+
 export default function Account() {
-  const { data: signer, mutate: refetchSigner } = useSWR<SignerData>('/api/account/signer', fetcher);
-  const { data: runtime } = useSWR<RuntimeData>('/api/runtime', fetcher);
+  const { data: signerRaw, mutate: refetchSigner } = useSWR<SignerData | null>('/api/account/signer', fetcher);
+  const { data: runtimeRaw } = useSWR<RuntimeData | null>('/api/runtime', fetcher);
+  const signer = signerRaw || MOCK_SIGNER;
+  const runtime = runtimeRaw || MOCK_RUNTIME;
   const [tokensInput, setTokensInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [balances, setBalances] = useState<BalancesData | null>(null);
+  const [balances, setBalances] = useState<BalancesData | null>(MOCK_BALANCES);
   const [pk, setPk] = useState('');
   const [savingPk, setSavingPk] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');

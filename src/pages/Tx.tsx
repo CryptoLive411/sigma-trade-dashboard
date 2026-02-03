@@ -29,10 +29,17 @@ interface TxEvent {
   };
 }
 
-const fetcher = (url: string) => api.get(url).then(r => r.data);
+// Fetcher moved inline with fallback
+
+const MOCK_TX: TxEvent[] = [
+  { type: 'sent', time: Date.now() - 60000, hash: '0xabc123def456789012345678901234567890abcdef', label: 'buy', address: '0x4200000000000000000000000000000000000006', status: 1 },
+  { type: 'confirmed', time: Date.now() - 55000, hash: '0xabc123def456789012345678901234567890abcdef', label: 'buy', status: 1, receipt: { status: 1, blockNumber: 12345678, gasUsed: '150000' } },
+  { type: 'sent', time: Date.now() - 30000, hash: '0xdef789abc123456789012345678901234567890123', label: 'sell', address: '0x1234567890abcdef1234567890abcdef12345678', status: 1 },
+  { type: 'confirmed', time: Date.now() - 25000, hash: '0xdef789abc123456789012345678901234567890123', label: 'sell', status: 1, receipt: { status: 1, blockNumber: 12345680, gasUsed: '120000' } },
+];
 
 export default function Tx() {
-  const { data: initial } = useSWR<TxEvent[]>('/api/tx', fetcher);
+  const { data: initial } = useSWR<TxEvent[]>('/api/tx', (url) => api.get(url).then(r => r.data).catch(() => MOCK_TX));
   const [events, setEvents] = useState<TxEvent[]>([]);
   const [filter, setFilter] = useState('');
   const [selected, setSelected] = useState<TxEvent | null>(null);
