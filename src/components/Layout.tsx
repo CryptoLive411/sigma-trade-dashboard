@@ -11,7 +11,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
+import { ApiStatusIndicator } from './ApiStatusIndicator';
 interface LayoutProps {
   children: React.ReactNode;
   title?: string;
@@ -65,13 +65,16 @@ export function Layout({ children, title }: LayoutProps) {
               })}
             </nav>
           </div>
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
+          <div className="flex items-center gap-4">
+            <ApiStatusIndicator />
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
+          </div>
         </div>
       </header>
       <main className="container pt-6 pb-12">
