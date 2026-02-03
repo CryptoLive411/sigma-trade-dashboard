@@ -1,0 +1,37 @@
+{
+  "name": "base-sniper-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+  "lint": "eslint .",
+  "livetest": "node src/livetest.js",
+  "smoke": "node src/smoke/subscribe.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+  "dotenv": "^16.4.5",
+  "@uniswap/sdk-core": "^7.7.2",
+  "@uniswap/universal-router-sdk": "^4.19.7",
+  "@uniswap/v4-sdk": "^1.21.4",
+    "ethers": "^5.7.2",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
+  "pino": "^9.5.0",
+  "socket.io": "^4.7.5",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "nodemon": "^3.1.0"
+  }
+}
