@@ -16,11 +16,18 @@ export default function Login() {
       setToken(data.token);
       toast({ title: 'Logged in successfully' });
       window.location.href = '/dashboard';
-    } catch (err) {
-      toast({ title: 'Login failed', variant: 'destructive' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Login failed - check API connection';
+      toast({ title: message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleDevBypass() {
+    localStorage.setItem('dev_bypass', 'true');
+    toast({ title: 'Dev mode enabled - bypassing auth' });
+    window.location.href = '/dashboard';
   }
 
   return (
@@ -56,6 +63,14 @@ export default function Login() {
               {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
+          <div className="mt-4 pt-4 border-t border-border">
+            <button
+              onClick={handleDevBypass}
+              className="w-full px-4 py-2 text-sm text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors"
+            >
+              Dev Mode (Skip Login)
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -18,7 +18,9 @@ const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = getToken();
-  if (!token) {
+  // Allow access if token exists OR if dev bypass is enabled
+  const devBypass = localStorage.getItem('dev_bypass') === 'true';
+  if (!token && !devBypass) {
     return <Navigate to="/" replace />;
   }
   return <>{children}</>;
