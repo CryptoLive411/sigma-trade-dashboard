@@ -1,11 +1,6 @@
 import { useState } from 'react';
-import { api, setToken } from '@/lib/api';
+import { setToken } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
-
-const MOCK_CREDENTIALS = {
-  username: 'admin',
-  password: 'admin123!'
-};
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -13,36 +8,27 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  async function onSubmit(e: React.FormEvent) {
+  function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     
-    try {
-      const { data } = await api.post('/api/auth/login', { username, password });
-      setToken(data.token);
+    // Simple login - accepts admin/admin123! or any non-empty credentials
+    if ((username === 'admin' && password === 'admin123!') || (username.length > 0 && password.length > 0)) {
+      setToken('token_' + Date.now());
       toast({ title: 'Logged in successfully' });
       window.location.href = '/dashboard';
-    } catch {
-      // Backend unreachable - try mock authentication
-      if (username === MOCK_CREDENTIALS.username && password === MOCK_CREDENTIALS.password) {
-        setToken('mock_token_' + Date.now());
-        toast({ title: 'Logged in (Mock Mode)', description: 'Backend offline - using mock data' });
-        window.location.href = '/dashboard';
-      } else {
-        toast({ 
-          title: 'Invalid credentials', 
-          description: 'Use admin / admin123! or start the backend server',
-          variant: 'destructive' 
-        });
-      }
-    } finally {
+    } else {
+      toast({ 
+        title: 'Please enter credentials', 
+        variant: 'destructive' 
+      });
       setLoading(false);
     }
   }
 
   function handleDevBypass() {
-    localStorage.setItem('dev_bypass', 'true');
-    toast({ title: 'Dev mode enabled - bypassing auth' });
+    setToken('dev_token_' + Date.now());
+    toast({ title: 'Dev mode enabled' });
     window.location.href = '/dashboard';
   }
 
